@@ -30,7 +30,7 @@ The request results in a message popping up on any OctoPrint instance that is cu
 must be periodically repeated, until an admin user on the OctoPrint instance presses either "Allow" or 
 "Deny".
 
-[[https://github.com/fieldOfView/OctoPrint-AppAuth/blob/master/screenshots/auth_request.png|alt=Access Request dialog]]
+![Access Request dialog](https://github.com/fieldOfView/OctoPrint-AppAuth/blob/master/screenshots/auth_request.png)
 
 A client shall periodically GET the endpoint, until the response code is either 403 or 200.
 
