@@ -1,24 +1,75 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-### (Don't forget to remove me)
-# This is a basic skeleton for your plugin's __init__.py. You probably want to adjust the class name of your plugin
-# as well as the plugin mixins it's subclassing from. This is really just a basic skeleton to get you started,
-# defining your plugin as a template plugin, settings and asset plugin. Feel free to add or remove mixins
-# as necessary.
-#
-# Take a look at the documentation on what other plugin mixins are available.
+import flask
 
 import octoprint.plugin
+from octoprint.settings import settings
+from octoprint.server.util.flask import restricted_access, get_json_command_from_request
+from octoprint.server import admin_permission, NO_CONTENT
 
-class AppauthPlugin(octoprint.plugin.SettingsPlugin):
+class AppauthPlugin(octoprint.plugin.AssetPlugin,
+					octoprint.plugin.BlueprintPlugin):
 
-	##~~ SettingsPlugin mixin
 
-	def get_settings_defaults(self):
-		return dict(
-			# put your plugin's default settings here
-		)
+	_decisions = {}
+
+	##-- AssetPlugin hooks
+	def get_assets(self):
+		return dict(js=["js/appauth.js"])
+
+	##~~ BlueprintPlugin mixin
+	@octoprint.plugin.BlueprintPlugin.route("/request", methods=["GET"])
+	def handle_request(self):
+		if not "clientkey" in flask.request.values:
+			return flask.make_response("No client key provided", 400)
+
+		client_key = flask.request.values["clientkey"]
+
+		if client_key in self._decisions:
+			if self._decisions.get(client_key, False):
+				return settings().get(["api", "key"])
+			else:
+				return flask.make_response("Access denied", 403)
+
+		self._plugin_manager.send_plugin_message(self._identifier, dict(
+			type="request_access",
+			client_key = flask.request.values["clientkey"],
+			application_name = flask.request.values["appname"] if "appname" in flask.request.values else "",
+			user_name = flask.request.values["username"] if "username" in flask.request.values else ""
+		))
+		return flask.make_response("Awaiting a decision", 202)
+
+
+	@octoprint.plugin.BlueprintPlugin.route("/decision", methods=["POST"])
+	@restricted_access
+	@admin_permission.require(403)
+	def handle_decision(self):
+		valid_commands = {
+			"decision": []
+		}
+
+		command, data, response = get_json_command_from_request(flask.request, valid_commands)
+		if response is not None:
+			return response
+
+		client_key = data.get("client_key", "")
+		if not client_key:
+			return
+
+		self._plugin_manager.send_plugin_message(self._identifier, dict(
+			type="end_request",
+			client_key = client_key
+		))
+
+		self._decisions[client_key] = data.get("access_granted", False);
+
+		return NO_CONTENT
+
+
+	def is_blueprint_protected(self):
+		return False # No API key required to request API access
+
 
 	##~~ Softwareupdate hook
 
