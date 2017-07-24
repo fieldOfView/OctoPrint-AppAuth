@@ -27,8 +27,12 @@ class AppauthPlugin(octoprint.plugin.AssetPlugin,
 		client_key = flask.request.values["clientkey"]
 
 		if client_key in self._decisions:
-			if self._decisions.get(client_key, False):
+			(access_granted, user_name) = self._decisions[client_key]
+			if access_granted:
+				if user_name:
+					return self._user_manager.findUser(user_name).asDict()["apikey"]
 				return settings().get(["api", "key"])
+
 			else:
 				return flask.make_response("Access denied", 403)
 
@@ -62,7 +66,7 @@ class AppauthPlugin(octoprint.plugin.AssetPlugin,
 			client_key = client_key
 		))
 
-		self._decisions[client_key] = data.get("access_granted", False);
+		self._decisions[client_key] = (data.get("access_granted", False), data.get("user_name", ""));
 
 		return NO_CONTENT
 

@@ -40,12 +40,12 @@ $(function() {
                         buttons: [{
                             text: gettext("Allow"),
                             click: function(notice) {
-                                self.handleAccessDecision(notice, true);
+                                self.handleAccessDecision(notice, self.loginState.username(), true);
                             }
                         }, {
                             text: gettext("Deny"),
                             click: function(notice) {
-                                self.handleAccessDecision(notice, false);
+                                self.handleAccessDecision(notice, self.loginState.username(), false);
                             }
                         }]
                     },
@@ -72,7 +72,7 @@ $(function() {
             }
         }
 
-        self.handleAccessDecision = function(notice, access_granted) {
+        self.handleAccessDecision = function(notice, user_name, access_granted) {
             // Called by access dialog when the user presses "Allow" or "Deny"
             // Hides the dialog and informs the server of the decision
             notice.remove();
@@ -94,6 +94,7 @@ $(function() {
             var payload = {
                 command: "decision",
                 client_key: client_key,
+                user_name: user_name,
                 access_granted: access_granted
             };
 
