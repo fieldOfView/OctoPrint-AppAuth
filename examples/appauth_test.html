@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>OctoPrint-AppAuth example</title>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script>
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  )
+}
+
+$(document).ready(function() {
+	$("#client_key").val(uuidv4());
+	$("#result").val("");
+
+	var _url;
+	var _data;
+
+	function requestAccess() {
+		$.ajax({
+			url: _url,
+			type: "GET",
+			data: _data,
+			dataType: "text",
+			complete: function(xhr, textStatus) {
+				var responseText = "";
+				$("#result").val(xhr.responseText);
+				if(xhr.status == 202) {
+					setTimeout(requestAccess, 1000);
+				}
+			}
+		});
+	}
+
+	$("#info").submit(function() {
+		$("#result").val("");
+
+		_url = $("#octoprint_url").val() + "plugin/appauth/request";
+		_data = {
+			"clientkey": $("#client_key").val(),
+			"appname": $("#application_name").val(),
+			"username": $("#user_name").val()
+		}
+		requestAccess();
+
+		return false;
+	});
+});
+</script>
+</head>
+<body>
+	<form id="info">
+		<table>
+			<tr>
+				<td><label for="octoprint_url">OctoPrint URL</label></td>
+				<td><input type="text" id="octoprint_url" value="http://octopi.local:5000/" /></td>
+			</tr>
+			<tr>
+				<td><label for="client_key">Client key</label></td>
+				<td><input type="text" disabled="true" id="client_key" /></td>
+			</tr>
+			<tr>
+				<td><label for="application_name">Application name</label></td>
+				<td><input type="text" id="application_name" value="My Application" /></td>
+			</tr>
+			<tr>
+				<td><label for="user_name">User name</label></td>
+				<td><input type="text" id="user_name" value="My Name" /></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type="submit" value="Request API key" /></td>
+			</tr>
+			<tr>
+				<td><label for="user_name">Result</label></td>
+				<td><input type="text" disabled="true" id="result" value="" /></td>
+			</tr>
+		</table>
+	</form>
+</body>
