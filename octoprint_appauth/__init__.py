@@ -11,7 +11,6 @@ from octoprint.server import admin_permission, NO_CONTENT
 class AppauthPlugin(octoprint.plugin.AssetPlugin,
 					octoprint.plugin.BlueprintPlugin):
 
-
 	_decisions = {}
 
 	##-- AssetPlugin hooks
@@ -32,15 +31,14 @@ class AppauthPlugin(octoprint.plugin.AssetPlugin,
 				if user_name:
 					return self._user_manager.findUser(user_name).asDict()["apikey"]
 				return settings().get(["api", "key"])
-
 			else:
 				return flask.make_response("Access denied", 401)
 
 		self._plugin_manager.send_plugin_message(self._identifier, dict(
 			type="request_access",
-			client_key = flask.request.values["clientkey"],
-			application_name = flask.request.values["appname"] if "appname" in flask.request.values else "",
-			user_name = flask.request.values["username"] if "username" in flask.request.values else ""
+			clientKey=flask.request.values["clientkey"],
+			applicationName=flask.request.values["appname"] if "appname" in flask.request.values else "",
+			userName=flask.request.values["username"] if "username" in flask.request.values else ""
 		))
 		return flask.make_response("Awaiting a decision", 202)
 
@@ -63,7 +61,7 @@ class AppauthPlugin(octoprint.plugin.AssetPlugin,
 
 		self._plugin_manager.send_plugin_message(self._identifier, dict(
 			type="end_request",
-			client_key = client_key
+			clientKey=client_key
 		))
 
 		self._decisions[client_key] = (data.get("access_granted", False), data.get("user_name", ""));
@@ -111,4 +109,3 @@ def __plugin_load__():
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
-

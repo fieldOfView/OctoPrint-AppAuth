@@ -14,24 +14,24 @@ $(function() {
                 // Called when a access request is received through the plugin
                 // Show a dialog to the user to grant or deny access
 
-                if(data.client_key === undefined) {
+                if(data.clientKey === undefined) {
                     // incomplete message
                     return;
                 }
 
-                if(self.openRequests[data.client_key] !== undefined) {
+                if(self.openRequests[data.clientKey] !== undefined) {
                     // request for this client is already showing, no need to show another one
                     return;
                 }
 
                 var message = gettext("Someone has requested access to control OctoPrint through the API");
-                if (data.application_name != "" && data.user_name != "") {
-                    message = _.sprintf(gettext("%(user_name)s has requested access to control OctoPrint from %(application_name)s"), 
-                                        {user_name: data.user_name, application_name: data.application_name}
+                if (data.applicationName != "" && data.userName != "") {
+                    message = _.sprintf(gettext("%(user_name)s has requested access to control OctoPrint from %(application_name)s"),
+                                        {user_name: data.userName, application_name: data.applicationName}
                     );
                 }
 
-                self.openRequests[data.client_key] = new PNotify({
+                self.openRequests[data.clientKey] = new PNotify({
                     title: gettext('Access Request'),
                     text: message,
                     hide: false,
@@ -58,16 +58,16 @@ $(function() {
                 // Called when a access decision is made on any open OctoPrint instance
                 // Hides the dialog on all other instances
 
-                if(data.client_key === undefined) {
+                if(data.clientKey === undefined) {
                     // incomplete message
                     return;
                 }
-                    
-                if(self.openRequests[data.client_key] !== undefined) {
+
+                if(self.openRequests[data.clientKey] !== undefined) {
                     // another instance responded to the access request before the current user did
 
-                    self.openRequests[data.client_key].remove();
-                    delete self.openRequests[data.client_key]
+                    self.openRequests[data.clientKey].remove();
+                    delete self.openRequests[data.clientKey]
                 }
             }
         }
@@ -86,16 +86,15 @@ $(function() {
                 return;
             }
 
-
             if (!self.loginState.isAdmin()) return;
 
             var url = PLUGIN_BASEURL + "appauth/decision";
 
             var payload = {
                 command: "decision",
-                client_key: client_key,
-                user_name: user_name,
-                access_granted: access_granted
+                clientKey: client_key,
+                userName: user_name,
+                accessGranted: access_granted
             };
 
             $.ajax({
