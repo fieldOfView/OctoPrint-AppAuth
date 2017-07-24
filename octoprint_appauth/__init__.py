@@ -55,16 +55,16 @@ class AppauthPlugin(octoprint.plugin.AssetPlugin,
 		if response is not None:
 			return response
 
-		client_key = data.get("client_key", "")
+		client_key = data.get("clientKey", "")
 		if not client_key:
-			return
+			return NO_CONTENT
 
 		self._plugin_manager.send_plugin_message(self._identifier, dict(
 			type="end_request",
 			clientKey=client_key
 		))
 
-		self._decisions[client_key] = (data.get("access_granted", False), data.get("user_name", ""));
+		self._decisions[client_key] = (data.get("accessGranted", False), data.get("userName", ""));
 
 		return NO_CONTENT
 
