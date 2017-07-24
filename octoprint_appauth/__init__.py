@@ -34,7 +34,7 @@ class AppauthPlugin(octoprint.plugin.AssetPlugin,
 				return settings().get(["api", "key"])
 
 			else:
-				return flask.make_response("Access denied", 403)
+				return flask.make_response("Access denied", 401)
 
 		self._plugin_manager.send_plugin_message(self._identifier, dict(
 			type="request_access",
@@ -47,7 +47,7 @@ class AppauthPlugin(octoprint.plugin.AssetPlugin,
 
 	@octoprint.plugin.BlueprintPlugin.route("/decision", methods=["POST"])
 	@restricted_access
-	@admin_permission.require(403)
+	@admin_permission.require(401)
 	def handle_decision(self):
 		valid_commands = {
 			"decision": []

@@ -32,9 +32,9 @@ must be periodically repeated, until an admin user on the OctoPrint instance pre
 
 ![Access Request dialog](https://github.com/fieldOfView/OctoPrint-AppAuth/blob/master/screenshots/auth_request.png)
 
-A client shall periodically GET the endpoint, until the response code is either 403 or 200.
+A client shall periodically GET the endpoint, until the response code is either 401 or 200.
 
 Until a decision is made, the request to the endpoint gets a response with HTTP code 202 and the text
-"Awaiting a decision". If the user chooses to deny access, the response will be HTTP code 403 "Access 
+"Awaiting a decision". If the user chooses to deny access, the response will be HTTP code 401 "Access 
 denied". Finally, if the user chooses to allow access, the response will be an HTTP code 200, and the
 response text will be the API key.
