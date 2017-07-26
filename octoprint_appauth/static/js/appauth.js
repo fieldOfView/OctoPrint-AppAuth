@@ -19,8 +19,10 @@ $(function() {
                     return;
                 }
 
-                if(self.openRequests[data.clientKey] !== undefined) {
+                if(self.openRequests[data.clientKey] !== undefined && self.openRequests[data.clientKey].state != "closed") {
                     // request for this client is already showing, no need to show another one
+                    // instead reset the timer of the already showing dialog
+                    self.openRequests[data.clientKey].cancelRemove().queueRemove();
                     return;
                 }
 
@@ -34,7 +36,7 @@ $(function() {
                 self.openRequests[data.clientKey] = new PNotify({
                     title: gettext('Access Request'),
                     text: message,
-                    hide: false,
+                    delay: 2000,
                     confirm: {
                         confirm: true,
                         buttons: [{
@@ -66,7 +68,9 @@ $(function() {
                 if(self.openRequests[data.clientKey] !== undefined) {
                     // another instance responded to the access request before the current user did
 
-                    self.openRequests[data.clientKey].remove();
+                    if(self.openRequests[data.clientKey].state != "closed") {
+                        self.openRequests[data.clientKey].remove();
+                    }
                     delete self.openRequests[data.clientKey]
                 }
             }
