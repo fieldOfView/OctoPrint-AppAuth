@@ -1,3 +1,5 @@
+*This plugin is deprecated by the bundled appkeys plugin*
+
 # OctoPrint-AppAuth
 
 Adds a mechanism to let applications request access to the API, letting a logged in user on the OctoPrint
